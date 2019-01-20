@@ -43,6 +43,7 @@
 #include "libMessage/Messenger.h"
 #include "libNetwork/Blacklist.h"
 #include "libPOW/pow.h"
+#include "libPersistence/IncrementalDB.h"
 #include "libServer/Server.h"
 #include "libUtils/BitVector.h"
 #include "libUtils/DataConversion.h"
@@ -845,6 +846,13 @@ void Node::CommitForwardedTransactions(const MBnForwardedTxnEntry& entry) {
     twr.Serialize(serializedTxBody, 0);
     BlockStorage::GetBlockStorage().PutTxBody(twr.GetTransaction().GetTranID(),
                                               serializedTxBody);
+    if (ENABLE_INCR_DB) {
+      IncrementalDB::GetInstance().PutTxBody(
+          twr.GetTransaction().GetTranID(), serializedTxBody,
+          to_string(m_mediator.m_dsBlockChain.GetLastBlock()
+                        .GetHeader()
+                        .GetBlockNum()));
+    }
   }
   LOG_EPOCH(INFO, m_mediator.m_currentEpochNum,
             "Proceessed " << entry.m_transactions.size() << " of txns.");
