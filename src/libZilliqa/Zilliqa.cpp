@@ -27,6 +27,7 @@
 #include "libCrypto/Sha2.h"
 #include "libData/AccountData/Address.h"
 #include "libNetwork/Guard.h"
+#include "libPersistence/IncrementalDB.h"
 #include "libServer/GetWorkServer.h"
 #include "libUtils/DataConversion.h"
 #include "libUtils/DetachedFunction.h"
@@ -193,6 +194,10 @@ Zilliqa::Zilliqa(const PairOfKey& key, const Peer& peer, bool loadConfig,
     } else {
       LOG_GENERAL(INFO, "Current node is not a guard node");
     }
+  }
+
+  if (ENABLE_INCR_DB) {
+    IncrementalDB::GetInstance().Init();
   }
 
   auto func = [this, toRetrieveHistory, syncType, key, peer]() mutable -> void {
